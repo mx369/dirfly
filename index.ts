@@ -2,12 +2,13 @@
 
 import { parseArgs } from "node:util";
 import path, { basename } from "node:path";
-import { existsSync } from "node:fs";
+import { existsSync, writeFileSync } from "node:fs";
 import { spawnSync, type SpawnOptions } from "node:child_process";
+import gitignoreContent from "./.gitignore" with { type: "text" }
 
 const { positionals } = parseArgs({ allowPositionals: true });
-const serverUrlIdx = positionals.findIndex(it => it.startsWith('svn+ssh://'))
-if (serverUrlIdx === -1) throw new Error('缺少svn服务地址,仅支持协议: svn+ssh://')
+const serverUrlIdx = positionals.findIndex(it => it.match(/\S+:\/\//))
+if (serverUrlIdx === -1) throw new Error('缺少svn服务地址')
 const serverUrl = positionals[serverUrlIdx]
 const localDir = path.resolve(positionals[serverUrlIdx - 1] || process.cwd())
 if (!existsSync(localDir)) throw new Error(`本地路径不存在: ${localDir}`)
@@ -16,10 +17,10 @@ const serverDir = positionals[serverUrlIdx + 1] || basename(localDir)
 process.chdir(localDir)
 
 const gitignore = '.gitignore'
-if (!existsSync(gitignore)) throw new Error(`请先创建${path.resolve(gitignore)},如 svn commit . -m "批量更新"`)
+if (!existsSync(gitignore)) writeFileSync(gitignore, gitignoreContent)
 if (existsSync('.svn')) throw new Error('当前目录已经被初始化过了,可以直接提交,如 `svn commit . -m "批量更新"`')
 
-const serverFullUrl = `${serverUrl}/${serverDir}`
+const serverFullUrl = `${serverUrl!.replace(/\/$/, '')}/${serverDir}`
 console.log(`准备导入: ${localDir} → ${serverFullUrl}`);
 /**
  * TODO
@@ -45,12 +46,9 @@ const cmds = [
     `svn commit -m "新增项目${serverDir}"`
 ]
 cmds.forEach(cmd => {
-    const res = crossSpawnExec(cmd, { stdio: 'inherit' })
-    if (res.status) {
-        process.exit(0)
-    }
+    const res = crossSpawnExec(cmd)
+    if (res.status) process.exit(0)
 })
-
 
 function crossSpawnExec(cmd: string, options?: SpawnOptions) {
     let [bin, ...params] = cmd.trim().split(/\s+/)
