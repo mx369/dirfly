@@ -46,6 +46,7 @@ const cmds = [
     `svn commit -m "新增项目${serverDir}"`
 ]
 cmds.forEach(cmd => {
+    console.info('执行命令 ', `[${cmd}]`)
     const res = crossSpawnExec(cmd)
     if (res.status) process.exit(0)
 })
