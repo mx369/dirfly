@@ -20,13 +20,13 @@ npx dirfly [localPath] <repoUrl> [repoSubDir]
 
 ---
 
-## 使用示例
+## 使用示例(推荐svn+ssh协议,避免频繁输入密码)
 
 ### 1. 使用当前目录上传
 
 ```bash
 cd ./my-project
-npx dirfly https://github.com/user/repo.git
+npx dirfly svn+ssh://github.com/user/repo
 ```
 
 * 使用当前目录作为 `[localPath]`
@@ -37,7 +37,7 @@ npx dirfly https://github.com/user/repo.git
 ### 2. 指定本地目录
 
 ```bash
-npx dirfly ./dist https://github.com/user/repo.git
+npx dirfly ./dist svn+ssh://github.com/user/repo
 ```
 
 * `[localPath]` = `./dist`
@@ -48,7 +48,7 @@ npx dirfly ./dist https://github.com/user/repo.git
 ### 3. 指定本地目录和仓库子目录
 
 ```bash
-npx dirfly ./dist https://github.com/user/repo.git frontend
+npx dirfly ./dist svn+ssh://github.com/user/repo frontend
 ```
 
 * `[localPath]` = `./dist`
