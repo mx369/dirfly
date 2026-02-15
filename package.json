@@ -1,0 +1,31 @@
+{
+  "name": "dirfly",
+  "version": "0.7.0",
+  "description": "用于将本地目录同步到指定`SVN`仓库。",
+  "keywords": [
+    "directory",
+    "sync",
+    "repository",
+    "git",
+    "SVN",
+    "upload",
+    "cli",
+    "npm",
+    "npx",
+    "目录同步"
+  ],
+  "bin": {
+    "dirfly": "./dist/index.js"
+  },
+  "scripts": {
+    "bld": "bun build ./index.ts --outdir ./dist --target node ",
+    "pub": "npm run bld && npm publish --registry https://registry.npmjs.org/ --//registry.npmjs.org/:_authToken=$token  "
+  },
+  "files": [
+    "dist"
+  ],
+  "type": "module",
+  "devDependencies": {
+    "@types/node": "^22.18.0"
+  }
+}
