@@ -25,7 +25,7 @@ function main() {
     const gitignore = '.gitignore'
     let _gitignoreContent = gitignoreContent
     if (existsSync(gitignore)) {
-        const lines = readFileSync(gitignore, 'utf8').split('\n')
+        const lines = readFileSync(gitignore, 'utf8').split('\n').map(it => it.trim())
         lines.push('.git', gitignore)
         _gitignoreContent = [...new Set(lines)].join('\r\n')
     }
