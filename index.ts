@@ -33,10 +33,10 @@ const cmds = [
     // svn import yourfile.txt http://svn.example.com/repo/trunk/project/yourfile.txt -m "导入单个文件"
     `svn import -m "导入临时占位文件"  ${gitignore}  ${serverFullUrl}/${gitignore}`,
     // 2. checkout " .
-    `svn checkout ${serverFullUrl} .`,
+    `svn checkout  --depth empty ${serverFullUrl} .`,
     // `svn checkout  "${serverFullUrl}" ./`,
     // 3. 添加忽略文件 
-    `svn propset svn:ignore -F ./.gitignore  ./ -R`,
+    `svn propset svn:global-ignores -F .gitignore . --recursive`,
     `svn resolve --accept working ./.gitignore`,
     // 4. 添加所有文件 
     `svn add --force .  `,
