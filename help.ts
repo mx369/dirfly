@@ -43,8 +43,8 @@ export function revertEmptyDir() {
 
     const lines = res.toString().split('\n')
     const maybeEmpty = lines.filter((line, idx) => {
-        const nextLine = (lines[idx + 1] || '').trimEnd()
-        return !nextLine.startsWith(line) && line.startsWith('A') && statSync(line.split(' ').pop()!).isDirectory()
+        const nextLine = lines[idx + 1] || ''
+        return !nextLine.startsWith(line) && line.startsWith('A') && statSync(line.trimEnd().split(' ').pop()!).isDirectory()
     })
     if (!maybeEmpty.length) return
     console.warn(`[${maybeEmpty.length}] 以下目录为空:已经自动过滤(有可能是文件忽略造成的)\n`, maybeEmpty.join('\n'))
