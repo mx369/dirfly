@@ -36,7 +36,7 @@ const cmds = [
     `svn checkout ${serverFullUrl} .`,
     // `svn checkout  "${serverFullUrl}" ./`,
     // 3. 添加忽略文件 
-    `svn propset svn:ignore -F ./.gitignore  ./`,
+    `svn propset svn:ignore -F ./.gitignore  ./ -R`,
     `svn resolve --accept working ./.gitignore`,
     // 4. 添加所有文件 
     `svn add --force .  `,
