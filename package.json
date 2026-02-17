@@ -19,7 +19,8 @@
   },
   "scripts": {
     "bld": "bun build ./index.ts --outdir ./dist --target node ",
-    "pub": "npm run bld && npm publish --registry https://registry.npmjs.org/ --//registry.npmjs.org/:_authToken=$token  "
+    "adduser": "npm adduser --registry https://registry.npmjs.org/",
+    "pub": "npm run bld && npm publish --registry https://registry.npmjs.org/ --//registry.npmjs.org/:_authToken=$NPM_TOKEN  "
   },
   "files": [
     "dist"
