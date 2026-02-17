@@ -16,7 +16,7 @@ if (!existsSync(localDir)) throw new Error(`本地路径不存在: ${localDir}`)
 const serverDir = positionals[serverUrlIdx + 1] || basename(localDir)
 const serverFullUrl = `${serverUrl!.replace(/\/$/, '')}/${serverDir}`
 
-confirmDanger([`服务器文件夹会被清空,再上传[${serverFullUrl}]`, `文件[${path.resolve('.svn')}]如果存在也会被删除`].join('\n'))
+confirmDanger([`1. 服务器文件夹会被清空,再上传[${serverFullUrl}]`, `2. 文件[${path.resolve('.svn')}]如果存在也会被删除`].join('\n'))
     .then(res => res && main())
 
 function main() {
@@ -25,7 +25,7 @@ function main() {
 
     const gitignore = '.gitignore'
     if (!existsSync(gitignore)) writeFileSync(gitignore, gitignoreContent)
-    if (existsSync('.svn')) rm('.svn', console.log)
+    if (existsSync('.svn')) rm('.svn', { recursive: true, force: true }, console.log)
 
     console.log(`准备导入: ${localDir} → ${serverFullUrl}`);
     try {

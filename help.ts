@@ -16,7 +16,7 @@ export function confirmDanger(message: string): Promise<boolean> {
         console.log('⚠️  ⚠️  ⚠️  警告 ⚠️  ⚠️  ⚠️');
         console.log(message);
 
-        rl.question('请输入 y 继续操作，其他键取消', (answer: string) => {
+        rl.question('请输入 y 继续操作，其他键取消\n', (answer: string) => {
             rl.close();
             if (answer.toLowerCase() === 'y') {
                 resolve(true);
