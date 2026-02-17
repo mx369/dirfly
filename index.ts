@@ -31,13 +31,11 @@ const cmds = [
     // local直接是当前cwd,或者手动指定一个路径
     // 1. 先导入一个临时文件占个位置文件 .gitignore/没有的话临时创建一个文件事成之后在删除
     // svn import yourfile.txt http://svn.example.com/repo/trunk/project/yourfile.txt -m "导入单个文件"
-    `svn import -m "导入临时占位文件"  ${gitignore}  ${serverFullUrl}/${gitignore}`,
+    `svn mkdir -m "导入临时占位文件"  ${serverFullUrl}`,
     // 2. checkout " .
     `svn checkout  --depth empty ${serverFullUrl} .`,
-    // `svn checkout  "${serverFullUrl}" ./`,
     // 3. 添加忽略文件 
     `svn propset svn:global-ignores -F .gitignore . --recursive`,
-    `svn resolve --accept working ./.gitignore`,
     // 4. 添加所有文件 
     `svn add --force .  `,
     // 5. 忽略 临时文件
