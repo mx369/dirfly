@@ -47,7 +47,7 @@ export function revertEmptyDir() {
         return !nextLine.startsWith(line) && line.startsWith('A') && statSync(line.split(' ').pop()!).isDirectory()
     })
     if (!maybeEmpty.length) return
-    console.warn(`[${maybeEmpty.length}] 以下目录为空:已经自动过滤(有可能是文件忽略造成的)\n`, maybeEmpty.join('\n'))
+    logError(`[${maybeEmpty.length}] 以下目录为空:已经自动过滤,注意核查(有可能是文件忽略造成的)\n`, maybeEmpty.join('\n'))
     crossSpawnExec(`svn revert ${maybeEmpty.map(it => it.split(' ').pop()).join(' ')}`, { stdio: ['inherit', 'ignore', 'pipe'] })
 }
 
