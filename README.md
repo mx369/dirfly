@@ -74,7 +74,7 @@ svn --version
 
 下面列出了一些可以托管 SVN 仓库或提供 SVN 服务的平台供参考：
 
-- 国际：SourceForge（https://sourceforge.net）
+- 国际：SourceForge https://sourceforge.net
 - gitee.com : 支持git  SVN 二合一仓库
 - svnbucket（https://svnbucket.com） — 支持绑定微信，提供免费与付费套餐，适合需要国内支付/本地化支持的团队
 

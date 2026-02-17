@@ -2,10 +2,9 @@
 
 import { parseArgs } from "node:util";
 import path, { basename } from "node:path";
-import { existsSync, rm, writeFileSync } from "node:fs";
-import { execSync } from "node:child_process";
+import { existsSync, readFileSync, rm, writeFileSync } from "node:fs";
 import gitignoreContent from "./.gitignore" with { type: "text" }
-import { confirmDanger, crossSpawnExec, revertEmptyDir } from "./help";
+import { confirmDanger, crossSpawnExec, logError, logInfo, revertEmptyDir } from "./help";
 
 const { positionals } = parseArgs({ allowPositionals: true });
 const serverUrlIdx = positionals.findIndex(it => it.match(/\S+:\/\//))
@@ -24,14 +23,17 @@ function main() {
     process.chdir(localDir)
 
     const gitignore = '.gitignore'
-    if (!existsSync(gitignore)) writeFileSync(gitignore, gitignoreContent)
+    let _gitignoreContent = gitignoreContent
+    if (existsSync(gitignore)) {
+        const lines = readFileSync(gitignore, 'utf8').split('\n')
+        lines.push('.git', gitignore)
+        _gitignoreContent = [...new Set(lines)].join('\n')
+    }
+    writeFileSync(gitignore, _gitignoreContent)
     if (existsSync('.svn')) rm('.svn', { recursive: true, force: true }, () => 0)
 
-    console.log(`准备导入: ${localDir} → ${serverFullUrl}`);
-    try {
-        execSync(`svn delete "${serverFullUrl}}" -m "清除已有文件"`, { stdio: 'pipe' });
-    } catch {
-    }
+    logInfo(`准备导入: ${localDir} → ${serverFullUrl}`);
+
     const cmds = [
         // local直接是当前cwd,或者手动指定一个路径
         // 1. 先导入一个临时文件占个位置文件 .gitignore/没有的话临时创建一个文件事成之后在删除
@@ -46,16 +48,20 @@ function main() {
         `svn add --force .  `,
         { fn: revertEmptyDir },
         // 5. 忽略 临时文件
-        // `svn delete --force ${tmpFile.name}`,
+        // `svn revert ${gitignore} .git`,
         // 6. 提交 
         `svn commit -m "新增项目${serverDir}"`
     ]
     cmds.forEach(cmd => {
         const [_cmd, ignoreErr, fn] = typeof cmd !== 'string' ? [cmd.cmd, cmd.ignoreErr, cmd.fn] : [cmd]
         if (!_cmd) return fn?.()
-        console.info('执行命令\n ', _cmd)
-        const res = crossSpawnExec(_cmd)
-        if (!ignoreErr && res.status) process.exit(0)
+        logInfo('执行命令')
+        console.log(_cmd)
+        const res = crossSpawnExec(_cmd, { stdio: ['inherit', 'ignore', 'pipe'] })
+        if (!ignoreErr && res.status) {
+            logError(res.stderr.toString())
+            process.exit(0)
+        }
     })
 
 }
