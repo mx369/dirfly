@@ -25,7 +25,7 @@ function main() {
 
     const gitignore = '.gitignore'
     if (!existsSync(gitignore)) writeFileSync(gitignore, gitignoreContent)
-    if (existsSync('.svn')) rm('.svn', { recursive: true, force: true }, console.log)
+    if (existsSync('.svn')) rm('.svn', { recursive: true, force: true }, () => 0)
 
     console.log(`准备导入: ${localDir} → ${serverFullUrl}`);
     try {
