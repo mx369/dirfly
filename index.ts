@@ -25,9 +25,9 @@ function main() {
     const gitignore = '.gitignore'
     let _gitignoreContent = gitignoreContent
     if (existsSync(gitignore)) {
-        const lines = readFileSync(gitignore, 'utf8').split('\n').map(it => it.trim())
+        const lines = readFileSync(gitignore, 'utf8').split('\n').map(it => it.trimEnd())
         lines.push('.git', gitignore)
-        _gitignoreContent = [...new Set(lines)].join('\r\n')
+        _gitignoreContent = [...new Set(lines)].join('\n')
     }
     writeFileSync(gitignore, _gitignoreContent)
     if (existsSync('.svn')) rm('.svn', { recursive: true, force: true }, () => 0)
