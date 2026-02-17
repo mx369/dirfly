@@ -1,4 +1,5 @@
-import { type SpawnOptions, spawnSync } from 'child_process';
+import { execSync, type SpawnOptions, spawnSync } from 'child_process';
+import { statSync } from 'fs';
 import readline from 'readline'
 /**
  * ⚠️ 提示用户危险操作并返回 Promise
@@ -14,9 +15,8 @@ export function confirmDanger(message: string): Promise<boolean> {
 
         console.log('⚠️  ⚠️  ⚠️  警告 ⚠️  ⚠️  ⚠️');
         console.log(message);
-        console.log('请输入 y 继续操作，其他键取消\n');
 
-        rl.question('请输入 y 继续: ', (answer: string) => {
+        rl.question('请输入 y 继续操作，其他键取消', (answer: string) => {
             rl.close();
             if (answer.toLowerCase() === 'y') {
                 resolve(true);
@@ -36,4 +36,17 @@ export function crossSpawnExec(cmd: string, options?: SpawnOptions) {
         bin = 'powershell.exe'
     }
     return spawnSync(bin, params, { stdio: 'inherit', ...options })
+}
+
+export function revertEmptyDir() {
+    const res = execSync(`svn status`)
+
+    const lines = res.toString().split('\n')
+    const maybeEmpty = lines.filter((line, idx) => {
+        const nextLine = lines[idx + 1] || ''
+        return !nextLine.startsWith(line) && line.startsWith('A') && statSync(line.split(' ').pop()!).isDirectory()
+    })
+    if (!maybeEmpty.length) return
+    console.warn(`[${maybeEmpty.length}] 以下目录为空:已经自动过滤(有可能是文件忽略造成的)\n`, maybeEmpty.join('\n'))
+    execSync(`svn revert ${maybeEmpty.join(' ')}`)
 }
