@@ -23,18 +23,14 @@ if (existsSync('.svn')) throw new Error('当前目录已经被初始化过了,�
 const serverFullUrl = `${serverUrl!.replace(/\/$/, '')}/${serverDir}`
 console.log(`准备导入: ${localDir} → ${serverFullUrl}`);
 try {
-    execSync(`svn info "${serverFullUrl}"`, { stdio: 'pipe' });
-    throw new Error(`目录已经存在,请先删除,再试\n 删除命令为:\n svn delete ${serverFullUrl} -m '删除文件夹${serverDir}'`)
-} catch (e) {
-    const err = e as ExecException
-    const msg = err.stderr?.toString() || err.message;
-    if (!msg.includes('svn: E150000')) throw new Error(msg)
+    execSync(`svn delete "${serverFullUrl}/${gitignore}"`, { stdio: 'pipe' });
+} catch {
 }
 const cmds = [
     // local直接是当前cwd,或者手动指定一个路径
     // 1. 先导入一个临时文件占个位置文件 .gitignore/没有的话临时创建一个文件事成之后在删除
     // svn import yourfile.txt http://svn.example.com/repo/trunk/project/yourfile.txt -m "导入单个文件"
-    `svn mkdir -m "导入临时占位文件"  ${serverFullUrl}`,
+    `svn import -m "导入临时占位文件"  ${gitignore}  ${serverFullUrl}/${gitignore}`,
     // 2. checkout " .
     `svn checkout  --depth empty ${serverFullUrl} .`,
     // 3. 添加忽略文件 
