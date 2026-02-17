@@ -43,7 +43,7 @@ export function revertEmptyDir() {
 
     const lines = res.toString().split('\n')
     const maybeEmpty = lines.filter((line, idx) => {
-        const nextLine = lines[idx + 1] || ''
+        const nextLine = (lines[idx + 1] || '').trimEnd()
         return !nextLine.startsWith(line) && line.startsWith('A') && statSync(line.split(' ').pop()!).isDirectory()
     })
     if (!maybeEmpty.length) return
