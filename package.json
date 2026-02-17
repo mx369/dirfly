@@ -1,6 +1,6 @@
 {
   "name": "dirfly",
-  "version": "0.21.0",
+  "version": "0.22.0",
   "description": "用于将本地目录同步到指定`SVN`仓库。",
   "keywords": [
     "directory",
