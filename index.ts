@@ -3,7 +3,7 @@
 import { parseArgs } from "node:util";
 import path, { basename } from "node:path";
 import { existsSync, writeFileSync } from "node:fs";
-import { spawnSync, type SpawnOptions } from "node:child_process";
+import { execSync, spawnSync, type ExecException, type SpawnOptions } from "node:child_process";
 import gitignoreContent from "./.gitignore" with { type: "text" }
 
 const { positionals } = parseArgs({ allowPositionals: true });
@@ -22,11 +22,14 @@ if (existsSync('.svn')) throw new Error('当前目录已经被初始化过了,�
 
 const serverFullUrl = `${serverUrl!.replace(/\/$/, '')}/${serverDir}`
 console.log(`准备导入: ${localDir} → ${serverFullUrl}`);
-/**
- * TODO
- * 测试目录里面有很多嵌套的子项目; 就如ebase; 会把子项目的文件上传马
- */
-
+try {
+    execSync(`svn info "${serverFullUrl}"`, { stdio: 'pipe' });
+    throw new Error(`目录已经存在,请先删除,再试\n 删除命令为:\n svn delete ${serverFullUrl} -m '删除文件夹${serverDir}'`)
+} catch (e) {
+    const err = e as ExecException
+    const msg = err.stderr?.toString() || err.message;
+    if (!msg.includes('svn: E150000')) throw new Error(msg)
+}
 const cmds = [
     // local直接是当前cwd,或者手动指定一个路径
     // 1. 先导入一个临时文件占个位置文件 .gitignore/没有的话临时创建一个文件事成之后在删除
