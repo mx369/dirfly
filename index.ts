@@ -1,8 +1,8 @@
 #!/usr/bin/env node
 
 import { parseArgs } from "node:util";
-import path, { basename } from "node:path";
-import { existsSync, readFileSync, rm, writeFileSync } from "node:fs";
+import path, { basename, resolve } from "node:path";
+import { existsSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import gitignoreContent from "./.gitignore" with { type: "text" }
 import { confirmDanger, crossSpawnExec, logError, logInfo, revertEmptyDir } from "./help";
 
@@ -15,7 +15,7 @@ if (!existsSync(localDir)) throw new Error(`本地路径不存在: ${localDir}`)
 const serverDir = positionals[serverUrlIdx + 1] || basename(localDir)
 const serverFullUrl = `${serverUrl!.replace(/\/$/, '')}/${serverDir}`
 
-confirmDanger([`1. 服务器文件夹会被清空,再上传[${serverFullUrl}]`, `2. 文件[${path.resolve('.svn')}]如果存在也会被删除`].join('\n'))
+confirmDanger([`1. 服务器文件夹会被清空,再上传[${serverFullUrl}]`, `2. 文件夹[${path.resolve('.svn')}]如果存在也会被删除`].join('\n'))
     .then(res => res && main())
 
 function main() {
@@ -30,7 +30,11 @@ function main() {
         _gitignoreContent = [...new Set(lines)].join('\n')
     }
     writeFileSync(gitignore, _gitignoreContent)
-    if (existsSync('.svn')) rm('.svn', { recursive: true, force: true }, () => 0)
+    if (existsSync('.svn')) rmSync('.svn', { recursive: true, force: true })
+    if (existsSync('.svn')) {
+        logError(`文件夹[${resolve('.svn')}]删除失败,请先手动删除`)
+        process.exit(1)
+    }
 
     logInfo(`准备导入: ${localDir} → ${serverFullUrl}`);
 
