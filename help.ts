@@ -42,13 +42,21 @@ export function revertEmptyDir() {
     const res = execSync(`svn status`)
 
     const lines = res.toString().split('\n').map(it => it.trimEnd())
-    const maybeEmpty = lines.filter((line, idx) => {
-        const nextLine = lines[idx + 1] || ''
-        return !nextLine.startsWith(line) && line.startsWith('A') && statSync(line.split(' ').pop()!).isDirectory()
-    })
-    if (!maybeEmpty.length) return
-    logError(`[${maybeEmpty.length}] 以下目录为空:已经自动过滤,注意核查(有可能是文件忽略造成的)\n`, maybeEmpty.join('\n'))
-    crossSpawnExec(`svn revert ${maybeEmpty.map(it => it.split(' ').pop()).join(' ')}`, { stdio: ['inherit', 'ignore', 'pipe'] })
+    const addedItem = lines.filter((line) => line[0]?.match(/\S/)).map(it => it.slice(1).trim())
+    const emptyDir: string[] = []
+    for (let idx = 0; idx < addedItem.length; idx++) {
+        const item = addedItem[idx] as string;
+        const nextLine = addedItem[idx + 1] || ''
+        if (nextLine.startsWith(item)) continue
+        if (!statSync(item).isDirectory()) continue
+        emptyDir.push(item)
+        addedItem.splice(idx, 1)
+        idx -= 2
+    }
+    if (!emptyDir.length) return
+    emptyDir.sort()
+    logError(`[${emptyDir.length}] 以下目录为空:已经自动过滤,注意核查(有可能是文件忽略造成的)\n`, emptyDir.join('\n'))
+    execSync(`svn revert -R ${emptyDir.map(it => `"${it}"`).join(' ')}`)
 }
 
 
