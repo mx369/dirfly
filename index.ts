@@ -4,7 +4,7 @@ import { parseArgs } from "node:util";
 import path, { basename, resolve } from "node:path";
 import { existsSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import gitignoreContent from "./.gitignore" with { type: "text" }
-import { confirmDanger, crossSpawnExec, logError, logInfo, revertEmptyDir } from "./help";
+import { colorText, confirmDanger, crossSpawnExec, logError, logInfo, revertEmptyDir } from "./help";
 
 const { positionals } = parseArgs({ allowPositionals: true });
 const serverUrlIdx = positionals.findIndex(it => it.match(/\S+:\/\//))
@@ -15,7 +15,7 @@ if (!existsSync(localDir)) throw new Error(`本地路径不存在: ${localDir}`)
 const serverDir = positionals[serverUrlIdx + 1] || basename(localDir)
 const serverFullUrl = `${serverUrl!.replace(/\/$/, '')}/${serverDir}`
 
-confirmDanger([`1. 服务器文件夹会被清空,再上传[${serverFullUrl}]`, `2. 文件夹[${path.resolve('.svn')}]如果存在也会被删除`].join('\n'))
+confirmDanger([`1. 服务器文件夹[${serverFullUrl}]会被清空,再上传`, `2. 文件夹[${path.resolve('.svn')}]如果存在也会被删除`].join('\n'))
     .then(res => res && main())
 
 function main() {
@@ -59,8 +59,7 @@ function main() {
     cmds.forEach(cmd => {
         const [_cmd, ignoreErr, fn] = typeof cmd !== 'string' ? [cmd.cmd, cmd.ignoreErr, cmd.fn] : [cmd]
         if (!_cmd) return fn?.()
-        logInfo('执行命令')
-        console.log(_cmd)
+        console.log(colorText('gray', '执行命令:'), _cmd)
         const res = crossSpawnExec(_cmd, { stdio: ['inherit', 'ignore', 'pipe'] })
         if (!ignoreErr && res.status) {
             logError(res.stderr.toString())

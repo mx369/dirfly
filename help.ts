@@ -55,15 +55,16 @@ export function revertEmptyDir() {
     }
     if (!emptyDir.length) return
     emptyDir.sort()
-    logError(`[${emptyDir.length}] 以下目录为空:已经自动过滤,注意核查(有可能是文件忽略造成的)\n`, emptyDir.join('\n'))
+    logError(`[${emptyDir.length}] 以下目录为空:已经自动过滤,注意核查(有可能是文件忽略造成的)\n`, emptyDir.join('\n').trim())
     execSync(`svn revert -R ${emptyDir.map(it => `"${it}"`).join(' ')}`)
 }
 
 
 export const logInfo = (...args: any[]) => colorLog('gray', ...args)
 export const logError = (...args: any[]) => colorLog('red', ...args)
+export const colorText = (color: keyof typeof colorLog.col, ...args: any[]) => colorLog.col[color] + args.join(' ') + colorLog.reset
 export function colorLog(color: keyof typeof colorLog.col, ...args: any[]) {
-    console.log(colorLog.col[color] + args.join(' ') + colorLog.reset);
+    console.log(colorText(color, ...args));
 }
 colorLog.reset = '\x1b[0m';
 colorLog.col = {
